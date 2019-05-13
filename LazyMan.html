@@ -1,0 +1,224 @@
+<script>
+// 题目
+// 实现一个LazyMan，可以按照以下方式调用:
+// LazyMan('Hank')输出:
+// Hi! This is Hank!
+//  
+// LazyMan('Hank').sleep(10).eat('dinner')输出
+// Hi! This is Hank!
+// // 等待10秒..
+// Wake up after 10s
+// Eat dinner~
+//  
+// LazyMan('Hank').eat('dinner').eat('supper')输出
+// Hi This is Hank!
+// Eat dinner~
+// Eat supper~
+//  
+// LazyMan('Hank').sleepFirst(5).eat('supper')输出
+// // 等待5秒
+// Wake up after 5s
+// Hi This is Hank!
+// Eat supper
+//  
+// 以此类推。
+
+LazyMan('Hank').sleep(10).eat('dinner')
+
+LazyMan('Hank').eat('dinner').eat('supper')
+
+LazyMan('Hank').sleepFirst(5).eat('supper')
+
+// ********** 发布订阅库封装 **********
+window.log = console.log
+class _LazyMan {
+  constructor (name) {
+    this.promiseGetters = []
+    const makePromise = name => {
+      return new Promise(resolve => {
+        log(`Hi! This is ${name}!`)
+        resolve()
+      })
+    }
+    this.promiseGetters.push(() => makePromise(name))
+    this.sequence = Promise.resolve()
+    setTimeout(() => this.next())
+  }
+
+  next () {
+    const nowPromiseGetter = this.promiseGetters.shift()
+    if (nowPromiseGetter) {
+      this.sequence = this.sequence.then(nowPromiseGetter)
+      this.next()
+    }
+  }
+
+  sleepFirst (time) {
+    this.promiseGetters.unshift(() => new Promise(resolve => {
+      setTimeout(() => {
+        log(`Wake up after ${time}s`)
+        resolve()
+      }, time * 1000)
+    }))
+    return this
+  }
+
+  sleep (time) {
+    this.promiseGetters.push(() => new Promise(resolve => {
+      setTimeout(() => {
+        log(`Wake up after ${time}s`)
+        resolve()
+      }, time * 1000)
+    }))
+    return this
+  }
+
+  eat (thing) {
+    this.promiseGetters.push(() => new Promise(resolve => {
+      log(`eat ${thing}~`)
+      resolve()
+    }))
+    return this
+  }
+
+}
+
+function LazyMan (name) {
+  return new _LazyMan(name)
+}
+// ***********************************
+
+// ********** 发布订阅模式封装 *********
+(function (window) {
+  var taskQueue = []
+
+  var TaskCmd = {
+    SLEEP_FIRST: 'sleepFirst',
+    SLEEP: 'sleep',
+    EAT: 'eat',
+    LAZY_MAN: 'lazyMan'
+  }
+
+  var methods = {
+    sleepFirst: function (num) {
+      setTimeout(() => {
+        log(`Wake up after ${num}s`)
+        publish()
+      }, num * 1000)
+    },
+    sleep: function (num) {
+      setTimeout(() => {
+        log(`Wake up after ${num}s`)
+        publish()
+      }, num * 1000)
+    },
+    eat: function (str) {
+      log(`Eat ${str}~`)
+      publish()
+    },
+    lazyMan: function (str) {
+      log(`Hi! This is ${str}!`)
+      publish()
+    }
+  }
+
+  function _LazyMan () {}
+  _LazyMan.prototype = {
+    sleepFirst: function (num) {
+      subscribe(TaskCmd.SLEEP_FIRST, num)
+      return this
+    },
+    sleep: function (num) {
+      subscribe(TaskCmd.SLEEP, num)
+      return this
+    },
+    eat: function (str) {
+      subscribe(TaskCmd.EAT, str)
+      return this
+    }
+  }
+
+  function subscribe () {
+    if (arguments.length === 0) throw new Error('subscribe canot have arg')
+    var task = {
+      cmd: arguments[0],
+      args: [].slice.call(arguments, 1)
+    }
+    if (task.cmd === TaskCmd.SLEEP_FIRST) {
+      taskQueue.unshift(task)
+    } else {
+      taskQueue.push(task)
+    }
+  }
+
+  function publish () {
+    var task = taskQueue.shift()
+    if (task) methods[task.cmd].apply(null, task.args)
+  }
+
+  function log (str) {
+    console.log(str)
+  }
+
+  window.LazyMan = function (str) {
+    subscribe(TaskCmd.LAZY_MAN, str)
+    setTimeout(publish)
+    return new _LazyMan()
+  } 
+})(window)
+// ***********************************
+
+// ************ ES6 类封装 ************
+(function (window) {
+  window.log = console.log
+
+  class _LazyMan {
+    constructor (name) {
+      this.taskQueue = []
+      const fn = () => {
+        log(`Hi! This is ${name}!`)
+        this.next()
+      }
+      this.taskQueue.push(fn)
+      setTimeout(() => this.next())
+    }
+
+    next () {
+      const fn = this.taskQueue.shift()
+      fn && fn()
+      return this
+    }
+
+    sleepFirst (time) {
+      this.taskQueue.unshift(this.weakUp.call(this, time))
+      return this
+    }
+
+    sleep (time) {
+      this.taskQueue.push(this.weakUp.call(this, time))
+      return this
+    }
+
+    weakUp (time) {
+      setTimeout(() => {
+        log(`Wake up after ${time}s`)
+        this.next()
+      }, time * 1000)
+    }
+
+    eat (thing) {
+      const fn = () => {
+        log(`Eat ${thing}~`)
+        this.next()
+      }
+      this.taskQueue.push(fn)
+      return this
+    }
+  }
+
+  window.LazyMan = name => {
+    return new _LazyMan(name)
+  }
+})(window)
+// ***********************************
+</script>
