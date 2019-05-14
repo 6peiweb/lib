@@ -1,0 +1,34 @@
+<script>
+// *********** 深度克隆 ***********
+function deepClone (target) {
+  const TYPE = {
+    Object: '[object Object]',
+    Array: '[object Array]'
+  }
+  const result = (Object.prototype.toString.call(target) === TYPE.Object) ? {} :[]
+  for (let prop in target) {
+    if (target.hasOwnProperty(prop)) {
+      const typeResult = Object.prototype.toString.call(target[prop])
+      const isArray = typeResult === TYPE.Array
+      const isObject = typeResult === TYPE.Object
+      if (isArray || isObject) {
+        result[prop] = deepClone(target[prop])
+      } else {
+        result[prop] = target[prop]
+      }
+    }
+  }
+  return result
+}
+
+const target = {
+  name: 'fnc',
+  callback: function () {
+    console.log(this.name);
+  }
+}
+const result = deepClone(target)
+console.log(result)
+result.callback()
+// *******************************
+</script>

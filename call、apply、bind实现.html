@@ -1,0 +1,38 @@
+<script>
+// *********** call实现 ***********
+Function.prototype.call = function (context) {
+  const args = [...arguments].slice(1)
+  const context = context || window
+  context[this.name] = this
+  const result = context[this.name](...args)
+  delete context[this.name]
+  return result
+}
+// *******************************
+
+// *********** apply实现 **********
+Function.prototype.apply = function (context) {
+  const args = arguments[1] || []
+  const context = context || window
+  context[this.name] = this
+  const result = context[this.name](...args)
+  delete context[this.name]
+  return result
+}
+// *******************************
+
+// *********** bind实现 ***********
+Function.prototype.bind = function (context) {
+  const self = this
+  const args = [...arguments].slice(1)
+  const context = context || window
+  return function () {
+    const totalArgs = [...args, ...arguments]
+    context[self.name] = self
+    const result = context[self.name](...totalArgs)
+    delete context[self.name]
+    return result
+  }
+}
+// *******************************
+</script>
