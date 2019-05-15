@@ -1,0 +1,21 @@
+<script>
+// *********** instanceof的实现 ***********
+function instance (A, B) {
+  const BPrototype = B.prototype
+  if (!BPrototype) throw new TypeError(`Function has non-object prototype '${BPrototype}' in instanceof check`)
+  let curProto = A.__proto__
+  let flag = false
+  while (curProto) {
+    flag = (curProto === BPrototype)
+    if (flag) return true
+    curProto = curProto.__proto__
+  }
+  return flag
+}
+
+function A () {}
+const a = new A()
+const result = instance(a, A)
+console.log(result)
+// ***************************************
+</script>
