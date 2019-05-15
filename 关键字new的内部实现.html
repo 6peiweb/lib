@@ -1,0 +1,21 @@
+<script>
+function Message (title) {
+  this.title = title
+}
+Message.prototype.info = function () {
+  console.info(this.title)
+}
+
+// *********** _new的实现 ***********
+function _new (_constructor) {
+  const self = {}
+  const args = [].slice.call(arguments, 1)
+  _constructor.apply(self, args)
+  self.__proto__ = _constructor.prototype
+  return self
+}
+
+const msg = _new(Message, '我是构造函数Message创建的实例')
+msg.info()
+// *********************************
+</script>
