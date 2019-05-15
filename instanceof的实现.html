@@ -1,10 +1,12 @@
 <script>
 // *********** instanceof的实现 ***********
 function instance (A, B) {
+  let flag = false
+  const basicV = ['string', 'number', 'boolean', 'undefined']
+  if (A === null || basicV.indexOf(A) > -1) return flag
   const BPrototype = B.prototype
   if (!BPrototype) throw new TypeError(`Function has non-object prototype '${BPrototype}' in instanceof check`)
   let curProto = A.__proto__
-  let flag = false
   while (curProto) {
     flag = (curProto === BPrototype)
     if (flag) return true

@@ -1,0 +1,18 @@
+<script>
+// *********** _typeof的实现 ***********
+function _typeof (target) {
+  const TYPE_OBJECT = 'object'
+  const BASIC_TYPE = ['string', 'number', 'boolean']
+  if (target === null) return TYPE_OBJECT
+  let typeToStr = Object.prototype.toString.call(target).match(/\[object (.+)]/)[1].toLowerCase()
+  if (BASIC_TYPE.indexOf(typeToStr) > -1) {
+    if (target.valueOf() !== target) {
+      typeToStr = TYPE_OBJECT
+    }
+  }
+  return typeToStr
+}
+const result = _typeof(new String('sss'))
+console.log(result)
+// ***********************************
+</script>
