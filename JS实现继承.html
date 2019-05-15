@@ -72,8 +72,7 @@ inheritPrototype(Son3, Parent)
 function Son4(name) {
   Parent.call(this, name)
 }
-inherit(this, Parent)
-// inherit(Son4, Parent)
+inherit(Son4, Parent)
 // 核心：通过临时函数实现子类继承父类原型链，子类通过调用构造函数增强子类实例
 // 优点：完美实现了JS中的继承
 // 缺点：实现过于复杂
