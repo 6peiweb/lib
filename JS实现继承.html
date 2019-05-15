@@ -1,0 +1,81 @@
+<script>
+function Parent (name) {
+  this.name = name
+}
+Parent.prototype.say = function () {
+  console.log(`My name is ${this.name}!`)
+}
+
+// ********** 原型链继承 **********
+function Son () {}
+Son.prototype = new Parent('son')
+// 核心：将父类实例当做子类原型
+// 优点：不仅能继承父类的属性与方法，也可以继承父类原型链上的属性与方法
+// 缺点：
+//  1、子类实例共享原型的属性
+//  2、无法向父类构造函数传参
+// *******************************
+
+
+// ********** 构造函数继承 *********
+function Son1 (name) {
+  Parent.call(this, name)
+}
+// 核心：使用父类的构造函数来增强子类的实例，也就是把父类实例的属性与方法赋值给子类
+// 优点：
+//  1、解决了子类实例共享原型属性的弊端
+//  2、可以向父类构造函数传参
+// 缺点：子类实例无法继承父类原型链上的属性与方法
+// *******************************
+
+
+// ********** 原型链与构造函数组合实现继承 **********
+function Son2 (name) {
+  Parent.call(this, name)
+}
+Son2.prototype = new Parent('son')
+Son2.prototype.constructor = Son2
+// 核心：通过构造函数继承父类实例的属性与方法，通过原型链继承父类原型链上的属性与方法
+// 优点：
+//  1、可以继承父类实例的属性与方法，也可以继承父类原型链上的属性与方法
+//  2、可以向父类构造函数传参，创造的实例既是子类的实例也是父类的实例
+// 缺点：调用了两次父类构造函数，生成了两份父类实例
+// **********************************************
+
+
+// ********** 寄生组合式继承 *********
+function inheritPrototype (sub, sup) {
+  const prototype = Object.create(sup.prototype)
+  prototype.constructor = sup
+  sub.prototype = prototype
+}
+function Son3 (name) {
+  Parent.call(this, name)
+}
+inheritPrototype(Son3, Parent)
+// 核心：通过Object.create复制父类的原型链给子类，子类调用父类构造函数增强子类实例
+// 优点：完美实现了JS中的继承
+// 缺点：实现过于复杂
+// *********************************
+
+// ********** 圣杯模式继承 *********
+!(function (window) {
+  function F () {}
+  function inherit (Target, Origin) {
+    F.prototype = Origin.prototype
+    Target.prototype = new F()
+    Target.prototype.constructor = Target
+    Target.prototype.uber = Origin
+  }
+  window.inherit = inherit
+})(window)
+function Son4(name) {
+  Parent.call(this, name)
+}
+inherit(this, Parent)
+// inherit(Son4, Parent)
+// 核心：通过临时函数实现子类继承父类原型链，子类通过调用构造函数增强子类实例
+// 优点：完美实现了JS中的继承
+// 缺点：实现过于复杂
+// *********************************
+</script>
