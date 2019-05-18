@@ -1,0 +1,68 @@
+<script>
+// *********** Symbol的实现 ***********
+!(function (window, undefined) {
+  var positfix = 0
+  var forMap = {}
+
+  function generateName (desc) {
+    return '@@' + desc + '_' + (positfix++)
+  }
+
+  function Symbol (description) {
+    if (this instanceof Symbol) throw new TypeError('Symbol is not a constructor')
+    var description = description === undefined ? undefined : String(description)
+    var symbol = Object.create(null)
+    Object.defineProperties(symbol, {
+      '__Description__': {
+        value: description,
+        configurable: false,
+        writable: false,
+        enumerable: false
+      },
+      '__Name__': {
+        value: generateName(description),
+        configurable: false,
+        writable: false,
+        enumerable: false
+      },
+      'toString': {
+        value: function () {
+          return 'Symbol(' + this['__Name__'] + ')'
+        },
+        configurable: false,
+        writable: false,
+        enumerable: false
+      },
+      'valueOf': {
+        value: function () {
+          return this
+        },
+        configurable: false,
+        writable: false,
+        enumerable: false
+      },
+    })
+
+    Symbol.for = function (description) {
+      var description = description === undefined ? undefined : String(description)
+      return forMap[description] ? forMap[description] : forMap[description] = Symbol(description)
+    }
+
+    Symbol.keyFor = function (symbol) {
+      if (!symbol.__Name__) throw new TypeError(String(symbol) + 'is not a symbol')
+      for (var key in forMap) {
+        if (forMap[key] === symbol) return key
+      }
+    }
+
+    return symbol
+  }
+
+  window.Symbol = Symbol
+})(window)
+
+a = Symbol({toString: () => 111})
+console.log(a);
+console.log(String(a));
+// ***********************************
+</script>
