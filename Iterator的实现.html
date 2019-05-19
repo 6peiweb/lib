@@ -1,0 +1,22 @@
+<script>
+// *********** Iterator的实现 ***********
+!(function (window, undefined) {
+  function Iterator (iterator) {
+    var nextIndex = 0
+    return {
+      next: function () {
+        if (nextIndex === iterator.length) return { value: undefined, done: true }
+        return { value: iterator[nextIndex ++], done: false }
+      }
+    }
+  }
+  window.Iterator = Iterator
+})(window)
+
+var it = Iterator(['a', 'b']);
+
+console.log(it.next()); // { value: "a", done: false }
+console.log(it.next()); // { value: "b", done: false }
+console.log(it.next()); // { value: undefined, done: true }
+// *************************************
+</script>
