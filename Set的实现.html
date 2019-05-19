@@ -1,0 +1,79 @@
+<script>
+// *********** Set的实现 ***********
+!(function (window, undefined) {
+  function Set (iterator) {
+    this.store = []
+    this.init(iterator)
+    this.size = this.store.length
+  }
+
+  Set.prototype.init = function (iterator) {
+    for (var prop in iterator) {
+      this.add(iterator[prop])
+    }
+  }
+
+  Set.prototype.add = function (value) {
+    var store = this.store
+    if (store.indexOf(value) === -1) {
+      store.push(value)
+      this.size ++
+    }
+    return this
+  }
+
+  Set.prototype.delete = function (value) {
+    var store = this.store
+    var index = store.indexOf(value)
+    console.log(index);
+    if (store.indexOf(value) > -1) {
+      store.splice(index, 1)
+      this.size --
+    }
+    return this
+  }
+
+  Set.prototype.has = function (value) {
+    return this.store.indexOf(value) > -1
+  }
+
+  Set.prototype.clear = function () {
+    this.store = []
+    this.size = 0
+  }
+
+  Set.prototype.union = function (iterator) {
+    var unionStroe = this.store.concat(iterator)
+    return new Set(unionStroe)
+  }
+
+  Set.prototype.intersect = function (iterator) {
+    var intersectStore = this.store.filter(function (value) {
+      return (iterator || []).indexOf(value) > -1
+    })
+    return new Set(intersectStore)
+  }
+
+  Set.prototype.subSet = function (iterator) {
+    if (this.size < iterator.length) return false
+    var tempSet = new Set(this.store.concat(iterator))
+    var result = String(tempSet.store) === String(this.store)
+    tempSet = null
+    return result
+  }
+
+  Set.prototype.difference = function (iterator) {
+    var intersectStore = this.intersect(iterator).store
+    var curStore = this.store
+    var differenceStore = curStore.filter(function (value) {
+      return (intersectStore || []).indexOf(value) === -1 
+    })
+    return new Set(differenceStore)
+  }
+
+  window.Set = Set
+})(window)
+console.log(a = new Set([1,2,3,4,5]));
+console.log(a.difference([1,2,3,4,6]));
+// ********************************
+</script>
