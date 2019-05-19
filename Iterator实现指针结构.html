@@ -1,0 +1,40 @@
+<script>
+// *********** iterator实现指针结构的实现 *******
+!(function (window, undefined) {
+  function Pointer (value) {
+    this.value = value
+    this.next = null
+    var self = this
+    Object.defineProperty(self, Symbol.iterator, {
+      value: function () {
+        return {
+          next: function () {
+            if (!self) return { value: undefined, done: true }
+            value = self.value
+            self = self.next
+            return { value: value, done: false }
+          }
+        }
+      }
+    })
+  }
+
+  window.Pointer = Pointer
+})(window)
+// *******************************************
+var one = new Pointer(1)
+var two = new Pointer(2)
+var three = new Pointer(3)
+
+one.next = two
+two.next = three
+
+// var arrIterator = one[Symbol.iterator]()
+// console.log(arrIterator.next());
+// console.log(arrIterator.next());
+// console.log(arrIterator.next());
+
+for (var i of one){
+  console.log(i) // 1, 2, 3
+}
+</script>
