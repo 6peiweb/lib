@@ -1,0 +1,77 @@
+<script>
+class Scope {
+  constructor() {
+    this.$$watchers = []
+  }
+
+  $watch (watchFn, listenerFn, valueEq) {
+    const watcher = {
+      watchFn: watchFn,
+      listenerFn: listenerFn || function () {},
+      valueEq: !!valueEq
+    }
+    this.$$watchers.push(watcher)
+  }
+
+  $$digestOnce () {
+    const self = this
+    let dirty
+    this.$$watchers.forEach((watch) => {
+      const newVal = watch.watchFn(self)
+      const oldVal = watch.last
+      if (this.$isEqual(newVal, oldVal, watch.valueEq)) {
+        watch.listenerFn(newVal, oldVal, self)
+        dirty = true
+      }
+      watch.last = newVal
+    })
+    return dirty
+  }
+
+  $digest () {
+    let dirty, ttl = 10
+    do {
+      dirty = this.$$digestOnce()
+      if (dirty && !(ttl --)) {
+        throw "10 digest iterations reached"
+      }
+    } while (dirty)
+  }
+
+  $isEqual (newVal, oldVal, valueEq) {
+    if (valueEq) {
+      return JSON.stringify(newVal) === JSON.stringify(oldVal)
+    } else {
+      if (newVal !== newVal && oldVal !== oldVal) return true
+      return newVal === oldVal
+    }
+  }
+}
+
+var scope = new Scope()
+
+scope.firstName = 'Joe'
+scope.counter = 0
+
+scope.$watch((scope) => {
+  return scope.counter
+}, (newVal, oldVal, scope) => {
+  scope.counterIsTwo = (newVal === 2)
+})
+
+scope.$watch((scope) => {
+  return scope.firstName
+}, (newVal, oldVal, scope) => {
+  scope.counter ++
+})
+
+scope.$digest()
+console.log(scope.counter === 1);
+
+scope.firstName = 'Jane'
+scope.$digest()
+console.log(scope.counter === 2)
+// console.log(scope.counterIsTwo)
+
+console.log(scope)
+</script>
