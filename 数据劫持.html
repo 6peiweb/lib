@@ -1,0 +1,117 @@
+<script>
+!(function (window, undefined) {
+  function observe (data) {
+    if (!data || typeof data !== 'object') return
+    Object.keys(data).forEach(function (key) {
+      defineReactive(data, key, data[key])
+    })
+  }
+
+  function defineReactive (data, key, val) {
+    var dep = new Dep()
+    observe(val)
+    Object.defineProperty(data, key, {
+      enumerable: true,
+      configurable: false,
+      get: function () {
+        Dep.target && dep.subscribe(Dep.target)
+        return val
+      },
+      set: function (newVal) {
+        if (val === newVal) return undefined
+        val = newVal
+        dep.notify()
+      }
+    })
+  }
+
+  function Dep () {
+    this.subs = []
+  }
+
+  Dep.prototype = {
+    subscribe: function (sub) {
+      this.subs.push(sub)
+    },
+    notify: function () {
+      this.subs.forEach(function (sub) {
+        sub.update()
+      })
+    }
+  }
+
+  function Compile (el) {
+    this.$el = this.isElementNode(el) ? el : docuemnt.querySelector(el)
+    if (this.$el) {
+      this.$fragment = this.node2Fragement(this.$el)
+      this.init()
+      this.$el.appendChild(this.$fragment)
+    }
+  }
+
+  Compile.prototype = {
+    init: function () {
+      this.compileElement(this.$fragment)
+    },
+    node2Fragement: function (el) {
+      var fragment = document.createDocumentFragment(this.$fragment)
+      var child
+      while (child = el.firstChild) {
+        fragment.appendChild(child)
+      }
+      return fragment
+    },
+    compileElement: function (el) {
+      var childNodes = el.childNodes
+      var self = this
+      ~[].slice.call(childNodes).forEach(function (node) {
+        var text = node.textContent
+        var reg = /\{\{(.*)\}\}/
+        if (self.isElementNode(node) && reg.test(text)) {
+          self.compile(node)
+        } else if (self.isTextNode(node) && reg.text(text)) {
+          me.compileText(node, RegExp.$1)
+        }
+        if (node.childNodes && node.childNodes.length) {
+          self.compileElement(node)
+        }
+      })
+    },
+    compile: function (node) {
+      var nodeAttrs = node.attributes
+      var self = this
+      ~[].slice.call(nodeAttrs).forEach(function (attr) {
+        var attrName = attr.name
+        if (self.isDirective(attrName)) {
+          
+        }
+      })
+    },
+    isElementNode: function (node) {
+
+    },
+    isTextNode: function (node) {
+
+    },
+    isDirective: function (attr) {
+
+    }
+  }
+  
+
+  window.observe = observe
+})(window)
+
+var demo = {
+  a: 1,
+  b: {
+    name: 'b'
+  }
+}
+
+observe(demo)
+
+demo.b = 2
+
+console.log(demo);
+</script>
